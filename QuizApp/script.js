@@ -1,91 +1,141 @@
-let questions = [];
-
-function showQuestionForm() {
-    document.getElementById('main-menu').style.display = 'none';
-    document.getElementById('question-form').style.display = 'block';
-}
-
-function hideQuestionForm() {
-    document.getElementById('question-form').style.display = 'none';
-    document.getElementById('main-menu').style.display = 'block';
-}
-
-function saveQuestion() {
-    const question = document.getElementById('question').value;
-    const options = [
-        document.getElementById('option1').value,
-        document.getElementById('option2').value,
-        document.getElementById('option3').value,
-        document.getElementById('option4').value
-    ];
-    const correctOption = document.getElementById('correctOption').value;
-
-    if (question && options.every(option => option) && options.includes(correctOption)) {
-        questions.push({ question, options, correctOption });
-        alert('Pergunta salva com sucesso!');
-        document.getElementById('question-form').reset();
-        hideQuestionForm();
-    } else {
-        alert('Por favor, preencha todos os campos corretamente.');
-    }
-}
+// script.js
 
 let currentQuestionIndex = 0;
+let score = 0;
+const questions = {
+    1: [
+        {
+            question: "Qual é a capital da França?",
+            options: ["Paris", "Londres", "Berlim", "Madri"],
+            correctAnswer: 0
+        },
+        // Adicione mais perguntas 
+    ],
+    2: [
+        {
+            question: "Qual é o maior oceano do mundo?",
+            options: ["Atlântico", "Índico", "Ártico", "Pacífico"],
+            correctAnswer: 3
+        },
+        // Adicione mais perguntas 
+    ],
+    3: [
+        {
+            question: "Quem pintou a Mona Lisa?",
+            options: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"],
+            correctAnswer: 1
+        },
+        // Adicione mais perguntas
+    ]
+};
+
+let selectedLevel = 1;
+let selectedAnswer = null;
 
 function startQuiz() {
-    if (questions.length === 0) {
-        alert('Nenhuma pergunta cadastrada.');
-        return;
-    }
-    document.getElementById('main-menu').style.display = 'none';
-    document.getElementById('quiz').style.display = 'block';
-    showQuestion(0);
+    const level = document.getElementById('difficulty').value;
+    selectedLevel = parseInt(level);
+    currentQuestionIndex = 0;
+    score = 0;
+    showQuestion();
 }
 
-function showQuestion(index) {
-    const question = questions[index];
-    document.getElementById('quiz-question').innerText = question.question;
-    const optionsDiv = document.getElementById('quiz-options');
-    optionsDiv.innerHTML = '';
-    question.options.forEach(option => {
-        const radioBtn = document.createElement('input');
-        radioBtn.type = 'radio';
-        radioBtn.name = 'quiz-option';
-        radioBtn.value = option;
-        radioBtn.id = option;
-
-        const label = document.createElement('label');
-        label.htmlFor = option;
-        label.innerText = option;
-
-        optionsDiv.appendChild(radioBtn);
-        optionsDiv.appendChild(label);
-        optionsDiv.appendChild(document.createElement('br'));
-    });
+function showQuestion() {
+    const quizDiv = document.getElementById('quiz');
+    const questionObj = questions[selectedLevel][currentQuestionIndex];
+    quizDiv.innerHTML = `
+        <h2>${questionObj.question}</h2>
+        ${questionObj.options.map((option, index) => `
+            <label>
+                <input type="radio" name="answer" value="${index}">
+                ${option}
+            </label><br>
+        `).join('')}
+        <button onclick="submitAnswer()">Enviar</button>
+        <button onclick="confirmExit()">Sair</button>
+    `;
+    document.getElementById('main-menu').style.display = 'none';
+    quizDiv.style.display = 'block';
 }
 
 function submitAnswer() {
-    const selectedOption = document.querySelector('input[name="quiz-option"]:checked');
-    if (!selectedOption) {
-        alert('Por favor, selecione uma opção.');
-        return;
-    }
-
-    const answer = selectedOption.value;
-    const correctOption = questions[currentQuestionIndex].correctOption;
-
-    if (answer === correctOption) {
-        alert('Você acertou!');
+    const selectedOption = document.querySelector('input[name="answer"]:checked');
+    if (selectedOption) {
+        selectedAnswer = parseInt(selectedOption.value);
+        checkAnswer();
     } else {
-        alert(`Resposta incorreta. A resposta correta é: ${correctOption}`);
+        alert('Por favor, selecione uma resposta!');
     }
+}
 
+function checkAnswer() {
+    const questionObj = questions[selectedLevel][currentQuestionIndex];
+    const quizDiv = document.getElementById('quiz');
+    quizDiv.innerHTML = `
+        <h2>${questionObj.question}</h2>
+        ${questionObj.options.map((option, index) => `
+            <label style="text-decoration: ${index === questionObj.correctAnswer ? 'underline' : ''}; color: ${index === questionObj.correctAnswer ? 'green' : (index === selectedAnswer ? 'red' : '')};">
+                ${option}
+            </label><br>
+        `).join('')}
+        <button onclick="nextQuestion()">Próxima Pergunta</button>
+    `;
+
+    if (selectedAnswer === questionObj.correctAnswer) {
+        score++;
+    }
+}
+
+function nextQuestion() {
     currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
-        showQuestion(currentQuestionIndex);
+    if (currentQuestionIndex < questions[selectedLevel].length) {
+        showQuestion();
     } else {
-        alert('Você completou o quiz!');
-        document.getElementById('quiz').style.display = 'none';
-        document.getElementById('main-menu').style.display = 'block';
+        showScore();
     }
+}
+
+function showScore() {
+    const quizDiv = document.getElementById('quiz');
+    quizDiv.innerHTML = `
+        <h2>Você acertou ${score} de ${questions[selectedLevel].length} perguntas!</h2>
+        <button onclick="returnToMenu()">Retornar ao Menu</button>
+    `;
+}
+
+function returnToMenu() {
+    document.getElementById('quiz').style.display = 'none';
+    document.getElementById('main-menu').style.display = 'block';
+}
+
+function confirmExit() {
+    const confirmation = confirm("Você tem certeza que deseja sair?");
+    if (confirmation) {
+        returnToMenu();
+    }
+}
+
+function showQuestionForm() {
+    const quizDiv = document.getElementById('quiz');
+    quizDiv.innerHTML = `
+        <h2>Cadastrar Pergunta (Apenas Visualização)</h2>
+        <label for="question">Pergunta:</label>
+        <input type="text" id="question" name="question"><br>
+        <label for="option1">Opção 1:</label>
+        <input type="text" id="option1" name="option1"><br>
+        <label for="option2">Opção 2:</label>
+        <input type="text" id="option2" name="option2"><br>
+        <label for="option3">Opção 3:</label>
+        <input type="text" id="option3" name="option3"><br>
+        <label for="option4">Opção 4:</label>
+        <input type="text" id="option4" name="option4"><br>
+        <label for="correctAnswer">Selecione a resposta correta:</label>
+        <input type="radio" name="correctAnswer" value="0"> Opção 1
+        <input type="radio" name="correctAnswer" value="1"> Opção 2
+        <input type="radio" name="correctAnswer" value="2"> Opção 3
+        <input type="radio" name="correctAnswer" value="3"> Opção 4<br>
+        <button onclick="returnToMenu()">Retornar ao Menu</button>
+    `;
+    document.getElementById('main-menu').style.display = 'none';
+    quizDiv.style.display = 'block';
 }
