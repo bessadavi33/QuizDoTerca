@@ -10,26 +10,53 @@
     <div id="app">
         <h1>Quiz App</h1>
         <div id="main-menu">
-            <button onclick="showQuestionForm()">Cadastrar Perguntas</button>
+            <label for="difficulty">Selecione o nível de dificuldade:</label>
+            <select id="difficulty">
+                <option value="1">Nível 1</option>
+                <option value="2">Nível 2</option>
+                <option value="3">Nível 3</option>
+            </select>
             <button onclick="startQuiz()">Responder Perguntas</button>
-        </div>
-
-        <div id="question-form" style="display: none;">
-            <h2>Cadastrar Pergunta</h2>
-            <input type="text" id="question" placeholder="Pergunta">
-            <input type="text" id="option1" placeholder="Opção 1">
-            <input type="text" id="option2" placeholder="Opção 2">
-            <input type="text" id="option3" placeholder="Opção 3">
-            <input type="text" id="option4" placeholder="Opção 4">
-            <input type="text" id="correctOption" placeholder="Resposta Correta">
-            <button onclick="saveQuestion()">Salvar</button>
-            <button onclick="hideQuestionForm()">Cancelar</button>
+            <button onclick="showQuestionForm()">Cadastrar Perguntas</button>
         </div>
 
         <div id="quiz" style="display: none;">
             <h2 id="quiz-question"></h2>
             <div id="quiz-options"></div>
             <button onclick="submitAnswer()">Enviar</button>
+            <button onclick="confirmExit()">Sair</button>
+        </div>
+
+        <div id="question-form" style="display: none;">
+            <h2>Cadastrar Pergunta</h2>
+            <label for="new-question-level">Nível de Dificuldade:</label>
+            <select id="new-question-level">
+                <option value="1">Nível 1</option>
+                <option value="2">Nível 2</option>
+                <option value="3">Nível 3</option>
+            </select><br>
+            
+            <label for="new-question">Pergunta:</label>
+            <input type="text" id="new-question"><br>
+            
+            <label>Opções:</label><br>
+            <input type="radio" name="correct-option" value="0">
+            <input type="text" id="option-0"><br>
+            <input type="radio" name="correct-option" value="1">
+            <input type="text" id="option-1"><br>
+            <input type="radio" name="correct-option" value="2">
+            <input type="text" id="option-2"><br>
+            <input type="radio" name="correct-option" value="3">
+            <input type="text" id="option-3"><br>
+
+            <button onclick="saveQuestion()">Salvar</button>
+            <button onclick="cancelQuestionForm()">Cancelar</button>
+        </div>
+
+        <div id="confirmation-modal" style="display: none;">
+            <p>Tem certeza de que deseja sair do quiz?</p>
+            <button onclick="exitQuiz()">Sim</button>
+            <button onclick="closeConfirmationModal()">Não</button>
         </div>
     </div>
     <script src="script.js"></script>
